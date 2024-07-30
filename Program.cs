@@ -2,30 +2,42 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace ConsoleApp1
+namespace WindowsFormsApp1
 {
-    public class Program
+
+    static public class Program
     {
-        //public static string path = "L:\\College\\Algorithm\\TiltGame\\[4] Tilt Game\\Project\\TiltGame\\Sample_Tests\\Case6.txt";
-        public static string path = "L:\\College\\Algorithm\\TiltGame\\[4] Tilt Game\\Project\\TiltGame\\Complete Tests\\3 large\\Case 3\\Case6.txt";
+        public static string path = "L:\\College\\Algorithm\\TiltGame\\[4] Tilt Game\\Project\\TiltGame\\Sample_Tests\\Case3.txt";
+        //public static string path = "L:\\College\\Algorithm\\TiltGame\\[4] Tilt Game\\Project\\TiltGame\\Complete Tests\\3 large\\Case 3\\Case6.txt";
         public static List<char[][]> BoardStates = new List<char[][]>();
-        public static Stopwatch stopwatchClone = new Stopwatch();
-        static void Main(string[] args)
+        public static int n; // Variable to store the size of the board
+        public static string[] targetCoords;
+        public static List<string> solution;
+        public static Tuple<int, int> target;
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-            int n; // Variable to store the size of the board
+
             char[][] board; // 2D array to represent the board
-            string[] lines = File.ReadAllLines(path);
+
             //string[] lines = ReadFromFile(path, out n, out board); // Read input from file
+            string[] lines = File.ReadAllLines(path);
 
             // Print the content read from the file
-            //Console.WriteLine("Content read from input.txt:");
-            //foreach (string line in lines)
-            //{
-            //    Console.WriteLine(line);
-            //}
-            //Console.WriteLine();
+            Console.WriteLine("Content read from input.txt:");
+            foreach (string line in lines)
+            {
+                Console.WriteLine(line);
+            }
+            Console.WriteLine();
 
             // Display the board configuration
 
@@ -44,14 +56,13 @@ namespace ConsoleApp1
             }
 
 
-            string[] targetCoords = lines[n + 1].Split(','); // Split target coordinates
-            Tuple<int, int> target = Tuple.Create(int.Parse(targetCoords[0]), int.Parse(targetCoords[1])); // Create a tuple for target position
+            targetCoords = lines[n + 1].Split(','); // Split target coordinates
+            target = Tuple.Create(int.Parse(targetCoords[0]), int.Parse(targetCoords[1])); // Create a tuple for target position
 
             // Solve the game
             Stopwatch stopwatch = new Stopwatch();
-            
             stopwatch.Start();
-            List<string> solution = SolveGame(board, target); // Find solution using BFS
+            solution = SolveGame(board, target); // Find solution using BFS
             stopwatch.Stop();
 
 
@@ -200,17 +211,37 @@ namespace ConsoleApp1
                 }
                 else
                 {
+                    BoardStates.Add(board);
                     Console.WriteLine("Not solvable");
                     outputFile.WriteLine("Not solvable");
                 }
+                // Print the running time
+                Console.WriteLine("Running time: " + FormatRunningTime(stopwatch.Elapsed));
+                outputFile.WriteLine("Running time: " + FormatRunningTime(stopwatch.Elapsed));
 
             }
 
 
-            // Print the running time
-            Console.WriteLine("Running time: " + FormatRunningTime(stopwatch.Elapsed));
-            Console.WriteLine("Clone time: " + FormatRunningTime(stopwatchClone.Elapsed));
+
+
+
+            // if(false)
+            //Console.WriteLine("hehhh");
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            //int Temp = Convert.ToInt32(Console.ReadLine());
+            if (path.Contains("Sample_Tests"))
+            {
+                Application.Run(new Game());
+            }
+            else
+            {
+                Application.Run(new CompleteTCForm());
+            }
+
         }
+        
+
 
         static string[] ReadFromFile(string fileName, out int n, out char[][] board)
         {
@@ -252,12 +283,12 @@ namespace ConsoleApp1
                 var tuple = queue.Dequeue(); // Dequeue a state
                 char[][] currentBoard = tuple.Item1; // Get the board configuration
                 List<string> moves = tuple.Item2; // Get the moves made so far
+                string currstr = BoardToString(currentBoard);
 
                 if (IsTargetReached(currentBoard, target)) // Check if target configuration is reached
                 {
                     return moves; // Return the sequence of moves
                 }
-                string currstr = BoardToString(currentBoard);
                 if (visited.Contains(currstr)) // Skip visited configurations
                 {
                     continue;
@@ -320,13 +351,10 @@ namespace ConsoleApp1
             //Console.WriteLine("aaaaaaaaaaaaaaaaaaaa");
             int n = B.Length;
             char[][] B_ = new char[n][];
-            
-            stopwatchClone.Start();
             for (int i = 0; i < n; i++)
             {
                 B_[i] = (char[])B[i].Clone();
             }
-            stopwatchClone.Stop();
 
             if (direction == 0)
             {
@@ -470,3 +498,4 @@ namespace ConsoleApp1
         }
     }
 }
+
